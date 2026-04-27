@@ -128,6 +128,128 @@ Header block with metadata, then timestamped values. Delimiter: `;`. Decimal sep
 
 ---
 
+## 48h Forecast: NÖ Wasserstand (Land Niederösterreich)
+
+**Provider:** Hydrographischer Dienst Niederösterreich
+**Base URL:** `https://www.noe.gv.at/wasserstand/`
+**Format:** CSV (semicolon-delimited, UTF-8)
+**Authentication:** None required
+**License:** Assumed OGD Austria (no explicit license on endpoint)
+**CORS:** Not available — server-side proxy required
+
+### Endpoints
+
+**Station list (with current values):**
+```
+GET kidata/maplist/MapList.json
+```
+
+Returns JSON array of all stations with parameters, current value, classification,
+coordinates, and display hints. Key fields per entry:
+```json
+{
+  "Parameter": "WasserstandPrognose",
+  "Stationnumber": "207357",
+  "Stationname": "Kienstock",
+  "Timestamp": "2026-04-27T15:15:00+01:00",
+  "Value": "178",
+  "Unit": "cm",
+  "Lat": "48.382",
+  "Long": "15.463",
+  "Linkparameter": "WasserstandPrognose",
+  "Grafik": "48Stunden",
+  "Rivername": "Donau"
+}
+```
+
+**48h forecast time series:**
+```
+GET kidata/stationdata/{stationNumber}_{parameter}_{timeframe}.csv
+```
+
+Parameters for forecast:
+- `WasserstandPrognose` — water level (cm)
+- `DurchflussPrognose` — discharge (m³/s)
+
+Timeframe: `48Stunden`
+
+Examples:
+```bash
+curl "https://www.noe.gv.at/wasserstand/kidata/stationdata/207357_WasserstandPrognose_48Stunden.csv"
+curl "https://www.noe.gv.at/wasserstand/kidata/stationdata/207357_DurchflussPrognose_48Stunden.csv"
+curl "https://www.noe.gv.at/wasserstand/kidata/stationdata/207241_WasserstandPrognose_48Stunden.csv"
+```
+
+### CSV Response Schema
+
+```
+Datenqualität;!ungeprüfte Rohdaten!;;
+Stationsname;Kienstock;;
+Stationsnummer;207357;;
+Parameter;WasserstandPrognose;;
+Zeitreihenname;Wahrscheinlichste Prognose;Vertrauensbreich;Vertrauensbreich
+von;2026-04-27 12:00:00;;
+bis;2026-04-27 19:00:00;;
+Einheit;cm;;
+;;;
+Datum;Mittel;Min;Max
+2026-04-27 12:00:00;186;186;186
+2026-04-27 12:15:00;185;185;185
+...
+2026-04-29 12:00:00;170;150;190
+```
+
+**Header (9 rows):**
+| Row | Field | Description |
+|-----|-------|-------------|
+| 1 | Datenqualität | Always "!ungeprüfte Rohdaten!" (unvalidated raw data) |
+| 2 | Stationsname | Station name |
+| 3 | Stationsnummer | HZB station number |
+| 4 | Parameter | `WasserstandPrognose` or `DurchflussPrognose` |
+| 5 | Zeitreihenname | Column headers: "Wahrscheinlichste Prognose;Vertrauensbreich;Vertrauensbreich" |
+| 6 | von | Start timestamp (local time, no TZ) |
+| 7 | bis | End of observed/hindcast window |
+| 8 | Einheit | Unit (cm or m³/s) |
+| 9 | (empty) | Separator row |
+
+**Data columns:**
+| Column | Description |
+|--------|-------------|
+| Datum | Timestamp `YYYY-MM-DD HH:MM:SS` (local time, CET/CEST) |
+| Mittel | Most probable forecast value |
+| Min | Lower confidence bound |
+| Max | Upper confidence bound |
+
+**Data characteristics:**
+- 15-minute intervals (~193 rows per file covering 48h)
+- Confidence band: Min=Max=Mittel for near-term (observed/hindcast), widens for forecast horizon
+- The `bis` header field marks the transition from observed → forecast (~5-7h from start)
+
+### Donau Forecast Stations (relevant for Tulln)
+
+| Station | Number | Lat | Lon | Position relative to Tulln |
+|---------|--------|-----|-----|---------------------------|
+| Kienstock | 207357 | 48.382 | 15.463 | ~60km upstream |
+| Korneuburg | 207241 | 48.327 | 16.334 | ~25km downstream |
+
+Kienstock is the primary early-warning gauge — rising water there arrives at Tulln
+several hours later.
+
+### Update Frequency & Caching
+
+- `Cache-Control: max-age=300` (5-minute browser/CDN cache)
+- `Last-Modified` updates sub-hourly (forecast model re-runs)
+- Recommended poll interval: **15 minutes** (matches measurement cadence)
+
+### CORS & Proxy Requirement
+
+No `Access-Control-Allow-Origin` header is returned. Browser-side fetch from
+`localhost:4000` or any external origin will be blocked by CORS policy.
+
+**Requirement:** Server-side proxy via Phoenix endpoint or Oban background job.
+
+---
+
 ## Alternative Sources (evaluated, not used)
 
 | Source | Access | Why not primary |
@@ -135,4 +257,3 @@ Header block with metadata, then timestamped values. Delimiter: `;`. Decimal sep
 | PegelAlarm API (api.pegelalarm.at) | JSON, requires auth (free test account via office@sobos.at) | Auth required, adds operational dependency |
 | DanubeHIS (danubehis.org) | WaterML 2.0 / CSV / XLS, requires registration | Registration required, 30-min intervals |
 | viadonau DoRIS (doris.bmimi.gv.at) | SPA only, no public API | No programmatic access |
-| NÖ Wasserstand (noe.gv.at/wasserstand) | SPA only, no public API | No programmatic access |
