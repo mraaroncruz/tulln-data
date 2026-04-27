@@ -1,0 +1,13 @@
+<div class="h-screen flex flex-col">
+  <div class="p-4 bg-base-200 flex items-center gap-4">
+    <h1 class="text-xl font-bold">MapLibre Spike Demo</h1>
+    <button phx-click="load_polygon" class="btn btn-primary btn-sm">
+      Load Polygon
+    </button>
+    <button phx-click="push_update" class="btn btn-secondary btn-sm">
+      Server Push (add Donaupark)
+    </button>
+    <span class="text-sm opacity-70">Showing: {@polygon_name}</span>
+  </div>
+  <div id="map" phx-hook="MapHook" phx-update="ignore" class="flex-1"></div>
+</div>
