@@ -10,6 +10,7 @@ config :tulln_data, TullnData.Repo,
   password: "postgres",
   hostname: "localhost",
   database: "tulln_data_test#{System.get_env("MIX_TEST_PARTITION")}",
+  port: 5632,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2,
   types: TullnData.PostgresTypes
