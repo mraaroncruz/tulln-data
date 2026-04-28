@@ -24,6 +24,15 @@ config :tulln_data, TullnDataWeb.Endpoint,
   pubsub_server: TullnData.PubSub,
   live_view: [signing_salt: "D+smvBE6"]
 
+# Configure the mailer
+#
+# By default it uses the "Local" adapter which stores the emails
+# locally. You can see the emails in your browser, at "/dev/mailbox".
+#
+# For production it's recommended to configure a different adapter
+# at the `config/runtime.exs`.
+config :tulln_data, TullnData.Mailer, adapter: Swoosh.Adapters.Local
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.25.4",
