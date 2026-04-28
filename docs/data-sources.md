@@ -257,3 +257,143 @@ No `Access-Control-Allow-Origin` header is returned. Browser-side fetch from
 | PegelAlarm API (api.pegelalarm.at) | JSON, requires auth (free test account via office@sobos.at) | Auth required, adds operational dependency |
 | DanubeHIS (danubehis.org) | WaterML 2.0 / CSV / XLS, requires registration | Registration required, 30-min intervals |
 | viadonau DoRIS (doris.bmimi.gv.at) | SPA only, no public API | No programmatic access |
+
+---
+
+## Municipal Budget: offenerhaushalt.at (KDZ)
+
+**Provider:** KDZ - Zentrum fur Verwaltungsforschung (www.kdz.or.at)
+**URL:** `https://www.offenerhaushalt.at/gemeinde/tulln-der-donau`
+**Format:** CSV (semicolon-delimited)
+**Authentication:** Session-based (VRV2015), none (VRV97)
+**License:** CC BY 4.0 -- attribute KDZ
+**Data range:** 2001-present
+**GKZ (Gemeindekennziffer):** 32135
+
+Two accounting standards coexist:
+
+| Standard | Years        | Site                     | Encoding    |
+|----------|--------------|--------------------------|-------------|
+| VRV 1997 | 2001-2019   | vrv97.offenerhaushalt.at | ISO-8859-1  |
+| VRV 2015 | 2020-present | www.offenerhaushalt.at   | UTF-8       |
+
+**Boundary year for Tulln: 2019 is the last VRV97 year; 2020 is the first VRV2015 year.**
+
+### Download Mechanics: VRV97 (2001-2019)
+
+Simple GET, no authentication:
+
+```
+GET https://vrv97.offenerhaushalt.at/download/{type}/top/tulln-der-donau/{year}
+```
+
+Types: `finanzdaten`, `voranschlag`, `rechnungsabschluss`, `schulden`, `haftungen`
+
+Returns CSV directly. Empty response for years without data.
+
+### Download Mechanics: VRV2015 (2020+)
+
+Three-step session-based download (anti-scraping protection):
+
+1. **GET** the download page to get session cookie + CSRF token:
+   ```
+   GET https://www.offenerhaushalt.at/gemeinde/tulln-der-donau/download
+   ```
+   Extract `_token` from `<input type="hidden" name="_token" value="...">`.
+
+2. **POST** to token endpoint (same cookie jar) to get the real download URL:
+   ```
+   POST https://www.offenerhaushalt.at/downloads/get-token
+   Body: foo=bar&_token={csrf_token}
+   ```
+   Returns: `{"action":"https://www.offenerhaushalt.at/downloads/ghdByParams","method":"POST"}`
+
+3. **POST** to the download endpoint (same cookie jar):
+   ```
+   POST https://www.offenerhaushalt.at/downloads/ghdByParams
+   Body: haushalt={type}&rechnungsabschluss={ra|va}&year={year}&origin={origin}&gkz=32135&_token={csrf_token}
+   ```
+
+Parameters:
+- `haushalt`: `fhh` (Finanzierungshaushalt), `ehh` (Ergebnishaushalt), `vhh` (Vermogenshaushalt)
+- `rechnungsabschluss`: `ra` (Rechnungsabschluss/actuals), `va` (Voranschlag/budget)
+- `year`: 2001-2026
+- `origin`: `gemeinde` (municipality-submitted) or `statistik_at` (Statistik Austria)
+- `gkz`: 32135 (Tulln an der Donau)
+
+### VRV97 CSV Schema (9 columns)
+
+| Column                         | Description                               | Example               |
+|--------------------------------|-------------------------------------------|-----------------------|
+| `gkz`                         | Municipality ID                           | `32135`               |
+| `jahr`                        | Fiscal year                               | `2018`                |
+| `haushaltskonto-hinweis`      | Budget type (1-4)                         | `1`                   |
+| `haushaltskonto-hinweis-name` | Budget type name                          | `ordentliche Ausgaben`|
+| `haushaltskonto-ansatz`       | Functional account code (3-digit)         | `010`                 |
+| `ansatzbezeichnung`           | Functional account description            | `Zentralamt`          |
+| `haushaltskonto-post`         | Economic account code (3-digit)           | `510`                 |
+| `kontenbezeichnung`           | Economic account description              | `Geldbezuge der...`   |
+| `soll-rj`                     | Amount in EUR                             | `232923,04`           |
+
+`haushaltskonto-hinweis` values: 1=ordinary expenditures, 2=ordinary revenues,
+3=extraordinary expenditures, 4=extraordinary revenues.
+
+### VRV2015 CSV Schema: fhh/ehh (16 columns)
+
+| Column                            | Description                            | Example                 |
+|-----------------------------------|----------------------------------------|-------------------------|
+| `Jahr`                            | Fiscal year                            | `2024`                  |
+| `Bundesland`                      | Federal state                          | `Niederosterreich`      |
+| `Voranschlag/Rechnungsabschluss`  | Budget or actuals                      | `Rechnungsabschluss`    |
+| `Datenquelle`                     | Data source                            | `Gemeinde`              |
+| `Gemeindekennziffer`              | Municipality ID                        | `32135`                 |
+| `Gemeindename`                    | Municipality name                      | `Tulln an der Donau`    |
+| `Haushalt`                        | Budget component                       | `Finanzierungshaushalt` |
+| `Ansatz-Uab`                      | Functional classification              | `999`                   |
+| `Ansatz-Ugl`                      | Functional sub-classification          | `000`                   |
+| `Konto-Grp`                       | Account group                          | `270`                   |
+| `Konto-Ugl`                       | Account sub-group                      | `000`                   |
+| `Vorhabencode`                    | Project code                           | `0000000`               |
+| `Mvag`                            | MVAG code (cash flow classification)   | `4110`                  |
+| `Ansatz-Text`                     | Functional classification description  | `Nicht voranschlags...` |
+| `Konto-Text`                      | Account description                    | `Vorsteuer - Evidenz`   |
+| `Wert`                            | Amount in EUR                          | `2825319,23`            |
+
+VRV2015 vhh (Vermogenshaushalt) uses balance-sheet columns (`Endstand-Vj`, `Zugang`,
+`Abgang`, `Aenderung`, `Endstand-Rj`) instead of a single `Wert`.
+
+Key MVAG code ranges: 31xx=operative receipts, 32xx=operative payments,
+33xx=investment receipts, 34xx=investment payments, 35xx=financing receipts,
+36xx=financing payments, 41xx/42xx=off-budget items.
+
+### Update Frequency
+
+- **Rechnungsabschluss** (actuals): annually, typically Q1 of following year
+- **Voranschlag** (budget): after municipal council approval, typically late prior year
+- **Statistik Austria** mirror: updated annually in October
+
+### Attribution
+
+Required: `Datenquelle: offenerhaushalt.at, KDZ - Zentrum fur Verwaltungsforschung, CC BY 4.0`
+Notify KDZ of applications using the data: offenerhaushalt@kdz.or.at
+
+### KDZ Quicktest
+
+Financial health ratios at:
+`https://www.offenerhaushalt.at/gemeinde/tulln-der-donau/quicktest`
+
+Five ratios: offentliche Sparquote, Eigenfinanzierungsquote, Verschuldungsdauer,
+Schuldendienstquote, Investitionsquote. HTML only (no CSV download). May need scraping.
+
+### ETL Implications
+
+1. **Two parsers needed:** VRV97 (ISO-8859-1, 9 cols) and VRV2015 (UTF-8, 16 cols)
+2. **VRV2015 download is session-based:** 3-step token exchange required
+3. **Three VRV2015 components per year:** fhh, ehh, vhh (each a separate download)
+4. **German decimal format:** comma separator (parse `"2825319,23"` as `2825319.23`)
+5. **VRV97-to-VRV2015 mapping:** account codes differ; crosswalk table needed for trends
+
+### Sample Files
+
+- `priv/samples/vrv97_tulln_2018_finanzdaten.csv` -- VRV97, 2018 Tulln finanzdaten
+- `priv/samples/vrv2015_tulln_2024_fhh_ra.csv` -- VRV2015, 2024 Finanzierungshaushalt RA
