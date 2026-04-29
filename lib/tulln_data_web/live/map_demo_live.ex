@@ -35,36 +35,50 @@ defmodule TullnDataWeb.MapDemoLive do
     }
   }
 
+  @noe_atlas_overlay %{
+    id: "noe-atlas",
+    type: "wms",
+    url: "https://gis.noe.gv.at/arcgis/services/PUBLIC/atlas_noe/MapServer/WMSServer",
+    layers: "0",
+    opacity: 0.5
+  }
+
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, polygon_name: "Hauptplatz")}
+    {:ok,
+     assign(socket,
+       page_title: "Map Demo",
+       features_label: "(none)",
+       wms_active: false,
+       clicked_feature: nil
+     )}
   end
 
   @impl true
   def handle_event("load_polygon", _params, socket) do
-    geojson = feature_collection([@tulln_hauptplatz])
-
     {:noreply,
      socket
-     |> assign(polygon_name: "Hauptplatz")
-     |> push_event("update_parcels", %{geojson: geojson})}
+     |> assign(features_label: "Hauptplatz")
+     |> push_vector_features("map", [@tulln_hauptplatz])}
   end
 
   def handle_event("push_update", _params, socket) do
-    geojson = feature_collection([@tulln_hauptplatz, @donaupark])
+    {:noreply,
+     socket
+     |> assign(features_label: "Hauptplatz + Donaupark")
+     |> push_vector_features("map", [@tulln_hauptplatz, @donaupark])}
+  end
+
+  def handle_event("toggle_wms", _params, socket) do
+    overlays = if socket.assigns.wms_active, do: [], else: [@noe_atlas_overlay]
 
     {:noreply,
      socket
-     |> assign(polygon_name: "Hauptplatz + Donaupark")
-     |> push_event("update_parcels", %{geojson: geojson})}
+     |> assign(wms_active: !socket.assigns.wms_active)
+     |> push_overlays("map", overlays)}
   end
 
-  def handle_event("viewport_changed", params, socket) do
-    IO.inspect(params, label: "viewport")
-    {:noreply, socket}
-  end
-
-  defp feature_collection(features) do
-    %{"type" => "FeatureCollection", "features" => features}
+  def handle_event("feature_clicked", params, socket) do
+    {:noreply, assign(socket, clicked_feature: params["properties"])}
   end
 end

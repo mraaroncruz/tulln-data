@@ -86,6 +86,7 @@ defmodule TullnDataWeb do
       import Phoenix.HTML
       # Core UI components
       import TullnDataWeb.CoreComponents
+      import TullnDataWeb.MapComponents
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS

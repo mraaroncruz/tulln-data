@@ -10,7 +10,6 @@ defmodule TullnFlood.Pegelonline do
 
   @base_url "https://www.pegelonline.wsv.de/webservices/rest-api/v2"
 
-
   @stations %{
     kienstock: %{
       shortname: "KIENSTOCK",

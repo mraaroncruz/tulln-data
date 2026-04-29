@@ -22,6 +22,9 @@ config :tulln_data, TullnDataWeb.Endpoint,
   secret_key_base: "oJDhUbrloGPI0Adf/ltqo542P8Q5bJvd/ri0kAJH4iGsweaQK/Zmfs7z+7lutGAj",
   server: false
 
+# Disable swoosh api client as it is only required for production adapters
+config :swoosh, :api_client, false
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 
