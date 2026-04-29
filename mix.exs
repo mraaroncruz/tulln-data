@@ -21,7 +21,7 @@ defmodule TullnData.MixProject do
   def application do
     [
       mod: {TullnData.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :xmerl]
     ]
   end
 
@@ -45,6 +45,7 @@ defmodule TullnData.MixProject do
       {:ecto_sql, "~> 3.13"},
       {:postgrex, ">= 0.0.0"},
       {:geo_postgis, "~> 3.7"},
+      {:req, "~> 0.5"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.1.0"},
