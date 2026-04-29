@@ -12,9 +12,9 @@ defmodule TullnData.Application do
       TullnData.Repo,
       {DNSCluster, query: Application.get_env(:tulln_data, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: TullnData.PubSub},
-      # Start a worker by calling: TullnData.Worker.start_link(arg)
-      # {TullnData.Worker, arg},
-      # Start to serve requests, typically the last entry
+      {Registry, keys: :unique, name: TullnData.GaugeRegistry},
+      {TullnData.GaugeServer, station: :kienstock},
+      {TullnData.GaugeServer, station: :korneuburg},
       TullnDataWeb.Endpoint
     ]
 

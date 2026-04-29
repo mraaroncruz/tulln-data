@@ -18,6 +18,8 @@ defmodule TullnDataWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/hochwasser/test", HochwasserTestLive
   end
 
   # Other scopes may use custom stacks.
