@@ -14,6 +14,9 @@ defmodule TullnData.Application do
       {DNSCluster, query: Application.get_env(:tulln_data, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: TullnData.PubSub},
       TullnData.WmsProxy.Cache,
+      {Registry, keys: :unique, name: TullnData.GaugeRegistry},
+      {TullnData.GaugeServer, station: :kienstock},
+      {TullnData.GaugeServer, station: :korneuburg},
       # Start to serve requests, typically the last entry
       TullnDataWeb.Endpoint
     ]
