@@ -8,11 +8,11 @@ defmodule TullnDataWeb.MapDemoLive do
       "type" => "Polygon",
       "coordinates" => [
         [
-          [15.8820, 48.3310],
-          [15.8835, 48.3310],
-          [15.8835, 48.3320],
-          [15.8820, 48.3320],
-          [15.8820, 48.3310]
+          [16.0580, 48.3295],
+          [16.0598, 48.3295],
+          [16.0598, 48.3308],
+          [16.0580, 48.3308],
+          [16.0580, 48.3295]
         ]
       ]
     }
@@ -25,21 +25,21 @@ defmodule TullnDataWeb.MapDemoLive do
       "type" => "Polygon",
       "coordinates" => [
         [
-          [15.8780, 48.3335],
-          [15.8810, 48.3335],
-          [15.8810, 48.3355],
-          [15.8780, 48.3355],
-          [15.8780, 48.3335]
+          [16.0560, 48.3335],
+          [16.0610, 48.3335],
+          [16.0610, 48.3360],
+          [16.0560, 48.3360],
+          [16.0560, 48.3335]
         ]
       ]
     }
   }
 
   @noe_atlas_overlay %{
-    id: "noe-atlas",
+    id: "noe-hw100",
     type: "wms",
-    url: "https://gis.noe.gv.at/arcgis/services/PUBLIC/atlas_noe/MapServer/WMSServer",
-    layers: "0",
+    url: "/wms/noe-ogd",
+    layers: "HYD_HW100",
     opacity: 0.5
   }
 

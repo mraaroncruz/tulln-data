@@ -42,6 +42,7 @@ defmodule TullnData.MixProject do
     [
       {:phoenix, "~> 1.8.5"},
       {:phoenix_ecto, "~> 4.5"},
+      {:tidewave, "~> 0.5", only: :dev},
       {:ecto_sql, "~> 3.13"},
       {:postgrex, ">= 0.0.0"},
       {:geo_postgis, "~> 3.7"},
