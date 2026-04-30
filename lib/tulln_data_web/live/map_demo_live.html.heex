@@ -1,13 +1,33 @@
-<div class="h-screen flex flex-col">
-  <div class="p-4 bg-base-200 flex items-center gap-4">
-    <h1 class="text-xl font-bold">MapLibre Spike Demo</h1>
-    <button phx-click="load_polygon" class="btn btn-primary btn-sm">
-      Load Polygon
-    </button>
-    <button phx-click="push_update" class="btn btn-secondary btn-sm">
-      Server Push (add Donaupark)
-    </button>
-    <span class="text-sm opacity-70">Showing: {@polygon_name}</span>
+<Layouts.app flash={@flash}>
+  <div class="space-y-4">
+    <h1 class="text-2xl font-bold">Map Component Demo</h1>
+
+    <div class="flex items-center gap-2 flex-wrap">
+      <button id="load-polygon-btn" phx-click="load_polygon" class="btn btn-primary btn-sm">
+        Load Polygon
+      </button>
+      <button id="push-update-btn" phx-click="push_update" class="btn btn-secondary btn-sm">
+        Server Push (add Donaupark)
+      </button>
+      <button id="toggle-wms-btn" phx-click="toggle_wms" class="btn btn-accent btn-sm">
+        {if @wms_active, do: "Hide WMS", else: "Show WMS Overlay"}
+      </button>
+    </div>
+
+    <div class="text-sm space-x-4">
+      <span class="opacity-70">Features: {@features_label}</span>
+      <%= if @clicked_feature do %>
+        <span class="font-medium text-primary">Clicked: {@clicked_feature["name"]}</span>
+      <% end %>
+    </div>
+
+    <div class="rounded-lg overflow-hidden border border-base-300 h-[500px]">
+      <.map
+        id="map"
+        center={[16.062, 48.334]}
+        zoom={13}
+        on_feature_click="feature_clicked"
+      />
+    </div>
   </div>
-  <div id="map" phx-hook="MapHook" phx-update="ignore" class="flex-1"></div>
-</div>
+</Layouts.app>

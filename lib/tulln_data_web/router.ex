@@ -21,6 +21,10 @@ defmodule TullnDataWeb.Router do
     live "/map", MapDemoLive
   end
 
+  scope "/wms", TullnDataWeb do
+    get "/:upstream", WmsProxyController, :proxy
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", TullnDataWeb do
   #   pipe_through :api

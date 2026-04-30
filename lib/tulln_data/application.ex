@@ -12,8 +12,7 @@ defmodule TullnData.Application do
       TullnData.Repo,
       {DNSCluster, query: Application.get_env(:tulln_data, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: TullnData.PubSub},
-      # Start a worker by calling: TullnData.Worker.start_link(arg)
-      # {TullnData.Worker, arg},
+      TullnData.WmsProxy.Cache,
       # Start to serve requests, typically the last entry
       TullnDataWeb.Endpoint
     ]
