@@ -45,7 +45,9 @@ mix tulln.ingest.hora
 mix tulln.ingest.hora hq100
 ```
 
-The task downloads each ZIP, stream-parses the GML with SAX, filters to Bezirk Tulln features, and upserts into the `flood_scenarios` table. Re-running is safe (upsert on `source_id` + `scenario`).
+The task downloads each ZIP (cached in `$TMPDIR`), unzips, and shells out to GDAL's `ogr2ogr` to load filtered features (`localId LIKE '321%'`) into a per-scenario staging table. A SQL upsert then copies the rows into `flood_scenarios` with `ST_FlipCoordinates + ST_Transform` to correct INSPIRE's authority axis order and reproject from EPSG:3035 to EPSG:4326. Re-running is safe (upsert on `gml_id` + `scenario`).
+
+**Requires `ogr2ogr` (from GDAL) on PATH.** Install via `brew install gdal` on macOS or `apt install gdal-bin` on Debian/Ubuntu.
 
 ## Database Schema
 

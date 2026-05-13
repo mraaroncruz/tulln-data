@@ -10,6 +10,11 @@ defmodule TullnFlood.Pegelonline do
 
   @base_url "https://www.pegelonline.wsv.de/webservices/rest-api/v2"
 
+  # The pegelonline.wsv.de cert has keyCertSign/cRLSign in keyUsage which OTP's
+  # strict TLS rejects as a key_usage_mismatch. Disable peer verification for
+  # this client only — the data is public, non-sensitive, and rendered as-is.
+  @req_opts [connect_options: [transport_opts: [verify: :verify_none]]]
+
   @stations %{
     kienstock: %{
       shortname: "KIENSTOCK",
@@ -38,7 +43,7 @@ defmodule TullnFlood.Pegelonline do
     url =
       "#{@base_url}/stations/#{station.shortname}.json?includeTimeseries=true&includeCurrentMeasurement=true"
 
-    case Req.get(url) do
+    case Req.get(url, @req_opts) do
       {:ok, %{status: 200, body: body}} ->
         parse_current(body)
 
@@ -58,7 +63,7 @@ defmodule TullnFlood.Pegelonline do
     station = @stations[station_key]
     url = "#{@base_url}/stations/#{station.shortname}/W/measurements.json?start=#{duration}"
 
-    case Req.get(url) do
+    case Req.get(url, @req_opts) do
       {:ok, %{status: 200, body: body}} when is_list(body) ->
         {:ok, Enum.map(body, &parse_measurement/1)}
 
@@ -79,7 +84,7 @@ defmodule TullnFlood.Pegelonline do
     url =
       "#{@base_url}/stations/#{station.shortname}/W.json?includeCharacteristicValues=true"
 
-    case Req.get(url) do
+    case Req.get(url, @req_opts) do
       {:ok, %{status: 200, body: body}} ->
         values =
           body
