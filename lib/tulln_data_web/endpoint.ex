@@ -31,6 +31,8 @@ defmodule TullnDataWeb.Endpoint do
     plug Tidewave
   end
 
+  plug PromEx.Plug, prom_ex_module: TullnData.PromEx
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

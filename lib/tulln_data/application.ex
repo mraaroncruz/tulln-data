@@ -9,6 +9,7 @@ defmodule TullnData.Application do
   def start(_type, _args) do
     children = [
       TullnDataWeb.Telemetry,
+      TullnData.PromEx,
       TullnData.Repo,
       {DNSCluster, query: Application.get_env(:tulln_data, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: TullnData.PubSub},
