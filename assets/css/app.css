@@ -91,6 +91,33 @@
   --noise: 0;
 }
 
+/* OpenTulln design tokens — Forest & Stone palette per priv/design/civic_transparency_framework/DESIGN.md */
+@theme {
+  --color-ot-primary: #1B4332;
+  --color-ot-primary-dark: #012d1d;
+  --color-ot-surface: #F8FAFC;
+  --color-ot-surface-subtle: #F1F5F9;
+  --color-ot-surface-container: #e5eeff;
+  --color-ot-on-surface: #0b1c30;
+  --color-ot-on-surface-variant: #414844;
+  --color-ot-outline: #c1c8c2;
+  --color-ot-secondary: #2c694e;
+
+  --color-ot-grade-a: #2D6A4F;
+  --color-ot-grade-b: #74C365;
+  --color-ot-grade-c: #E9C46A;
+  --color-ot-grade-d: #F4A261;
+  --color-ot-grade-e: #BC4749;
+
+  --color-ot-treemap-1: #1B4332;
+  --color-ot-treemap-2: #2D6A4F;
+  --color-ot-treemap-3: #40916C;
+  --color-ot-treemap-4: #74C365;
+  --color-ot-treemap-5: #95D5B2;
+  --color-ot-treemap-6: #B7E4C7;
+  --color-ot-treemap-7: #D8F3DC;
+}
+
 /* Add variants based on LiveView classes */
 @custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
 @custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);

@@ -1,8 +1,17 @@
 defmodule TullnDataWeb.PageControllerTest do
   use TullnDataWeb.ConnCase
 
-  test "GET /", %{conn: conn} do
+  test "GET / renders the OpenTulln landing", %{conn: conn} do
     conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "Peace of mind from prototype to production"
+    body = html_response(conn, 200)
+    assert body =~ "OpenTulln"
+    assert body =~ "Transparenz für den Bezirk Tulln"
+  end
+
+  test "GET /info renders the methodology page", %{conn: conn} do
+    conn = get(conn, ~p"/info")
+    body = html_response(conn, 200)
+    assert body =~ "Über OpenTulln"
+    assert body =~ "Glossar der Finanzkennzahlen"
   end
 end
