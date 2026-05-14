@@ -28,3 +28,55 @@ for {name, distance} <- Repo.all(query) do
 end
 
 IO.puts("=== Seed complete ===\n")
+
+# Municipalities seeded for the OpenTulln budget lens.
+# Tulln is the focal Gemeinde; the three peers are size-comparable Danube-corridor
+# Bezirksstädte chosen for budget comparison (per Linear ELB-1345).
+# Populations from 2024 Statistik Austria figures; refine if a STATcube fetch lands.
+
+municipalities = [
+  %{
+    slug: "tulln-der-donau",
+    name: "Tulln an der Donau",
+    gkz: "32135",
+    population: 16_556,
+    bezirk: "Tulln",
+    bundesland: "Niederösterreich"
+  },
+  %{
+    slug: "klosterneuburg",
+    name: "Klosterneuburg",
+    gkz: "32125",
+    population: 27_542,
+    bezirk: "Klosterneuburg (Statutarstadt)",
+    bundesland: "Niederösterreich"
+  },
+  %{
+    slug: "korneuburg",
+    name: "Korneuburg",
+    gkz: "31207",
+    population: 13_565,
+    bezirk: "Korneuburg",
+    bundesland: "Niederösterreich"
+  },
+  %{
+    slug: "stockerau",
+    name: "Stockerau",
+    gkz: "31230",
+    population: 16_916,
+    bezirk: "Korneuburg",
+    bundesland: "Niederösterreich"
+  }
+]
+
+for attrs <- municipalities do
+  TullnData.Budgets.upsert_municipality!(attrs)
+end
+
+IO.puts("=== Seeded #{length(municipalities)} Gemeinden ===")
+
+for m <- TullnData.Budgets.list_municipalities() do
+  IO.puts("  #{m.name} · GKZ #{m.gkz} · Pop #{m.population}")
+end
+
+IO.puts("")
