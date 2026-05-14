@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TullnData — Transparenz für den Bezirk Tulln</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#d29895",
+                    "surface": "#f8f9ff",
+                    "outline": "#717973",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-background": "#0b1c30",
+                    "on-secondary-container": "#316e52",
+                    "secondary-fixed-dim": "#95d4b3",
+                    "surface-tint": "#3f6653",
+                    "surface-base": "#F8FAFC",
+                    "grade-a": "#2D6A4F",
+                    "surface-container": "#e5eeff",
+                    "tertiary": "#401b1b",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "on-surface": "#0b1c30",
+                    "on-primary-container": "#86af99",
+                    "treemap-high": "#1B4332",
+                    "primary": "#012d1d",
+                    "inverse-primary": "#a5d0b9",
+                    "grade-d": "#F4A261",
+                    "surface-variant": "#d3e4fe",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#cbdbf5",
+                    "on-surface-variant": "#414844",
+                    "on-secondary-fixed-variant": "#0e5138",
+                    "outline-variant": "#c1c8c2",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#ffdad8",
+                    "surface-container-high": "#dce9ff",
+                    "on-tertiary-fixed-variant": "#673a39",
+                    "background": "#f8f9ff",
+                    "secondary": "#2c694e",
+                    "primary-container": "#1b4332",
+                    "surface-container-low": "#eff4ff",
+                    "primary-fixed": "#c1ecd4",
+                    "surface-bright": "#f8f9ff",
+                    "secondary-fixed": "#b1f0ce",
+                    "error-container": "#ffdad6",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#213145",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#002114",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#d3e4fe",
+                    "tertiary-fixed-dim": "#f5b7b4",
+                    "grade-e": "#BC4749",
+                    "grade-b": "#74C365",
+                    "on-tertiary-fixed": "#331111",
+                    "primary-fixed-dim": "#a5d0b9",
+                    "grade-c": "#E9C46A",
+                    "treemap-low": "#95D5B2",
+                    "on-primary-fixed-variant": "#274e3d",
+                    "tertiary-container": "#5a302f",
+                    "treemap-mid": "#40916C",
+                    "on-secondary-fixed": "#002114",
+                    "surface-subtle": "#F1F5F9",
+                    "secondary-container": "#aeeecb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "lg": "32px",
+                    "base": "16px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "gutter": "24px",
+                    "xl": "48px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "data-label": ["Inter"],
+                    "body-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "data-value": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "data-label": ["14px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "data-value": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface-base text-on-surface font-body-md text-body-md antialiased min-h-screen flex flex-col pt-16">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline">
+<div class="flex justify-between items-center px-gutter h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-xl">
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary">
+                    TullnData
+                </div>
+<nav class="hidden md:flex items-center gap-gutter h-full pt-1">
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary dark:border-inverse-primary pb-1 hover:text-primary dark:hover:text-inverse-primary transition-colors" href="#">
+                        Dashboard
+                    </a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors pb-[6px]" href="#">
+                        Info
+                    </a>
+</nav>
+</div>
+<div class="flex items-center gap-base text-primary dark:text-inverse-primary">
+<button aria-label="settings" class="hover:text-primary transition-colors flex items-center justify-center p-sm rounded-full hover:bg-surface-subtle">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button aria-label="help" class="hover:text-primary transition-colors flex items-center justify-center p-sm rounded-full hover:bg-surface-subtle">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-gutter py-xl">
+<div class="mb-lg max-w-[800px]">
+<h1 class="font-display-lg text-display-lg text-on-surface mb-sm">
+                TullnData — Transparenz für den Bezirk Tulln
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Wählen Sie eine Gemeinde, um deren Budget und finanzielle Gesundheit einzusehen.
+            </p>
+</div>
+<!-- 2x2 Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-base mt-lg">
+<!-- Card 1: Tulln an der Donau -->
+<a class="group block bg-surface rounded-lg border border-outline-variant p-gutter hover:bg-surface-subtle transition-colors relative overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04)]" href="#">
+<div class="flex justify-between items-start mb-base">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Tulln an der Donau</h2>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-xs flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="group">group</span>
+                            Pop: 16.556
+                        </div>
+</div>
+<div class="bg-grade-b text-on-primary font-headline-md text-body-md w-lg h-lg rounded flex items-center justify-center shadow-sm">
+                        B
+                    </div>
+</div>
+<!-- Treemap Thumbnail Placeholder -->
+<div class="w-full h-32 rounded bg-surface-container flex overflow-hidden border border-outline-variant opacity-80 group-hover:opacity-100 transition-opacity">
+<div class="w-1/2 h-full bg-treemap-high border-r border-outline-variant"></div>
+<div class="w-1/2 h-full flex flex-col">
+<div class="h-2/3 w-full bg-treemap-mid border-b border-outline-variant"></div>
+<div class="h-1/3 w-full bg-treemap-low flex">
+<div class="w-2/3 h-full border-r border-outline-variant"></div>
+<div class="w-1/3 h-full"></div>
+</div>
+</div>
+</div>
+</a>
+<!-- Card 2: Klosterneuburg -->
+<a class="group block bg-surface rounded-lg border border-outline-variant p-gutter hover:bg-surface-subtle transition-colors relative overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04)]" href="#">
+<div class="flex justify-between items-start mb-base">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Klosterneuburg</h2>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-xs flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="group">group</span>
+                            Pop: 27.542
+                        </div>
+</div>
+<div class="bg-grade-a text-on-primary font-headline-md text-body-md w-lg h-lg rounded flex items-center justify-center shadow-sm">
+                        A
+                    </div>
+</div>
+<!-- Treemap Thumbnail Placeholder -->
+<div class="w-full h-32 rounded bg-surface-container flex overflow-hidden border border-outline-variant opacity-80 group-hover:opacity-100 transition-opacity">
+<div class="w-[60%] h-full bg-treemap-high border-r border-outline-variant"></div>
+<div class="w-[40%] h-full flex flex-col">
+<div class="h-1/2 w-full bg-treemap-mid border-b border-outline-variant"></div>
+<div class="h-1/2 w-full bg-treemap-low"></div>
+</div>
+</div>
+</a>
+<!-- Card 3: Korneuburg -->
+<a class="group block bg-surface rounded-lg border border-outline-variant p-gutter hover:bg-surface-subtle transition-colors relative overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04)]" href="#">
+<div class="flex justify-between items-start mb-base">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Korneuburg</h2>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-xs flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="group">group</span>
+                            Pop: 13.565
+                        </div>
+</div>
+<div class="bg-grade-c text-on-surface font-headline-md text-body-md w-lg h-lg rounded flex items-center justify-center shadow-sm">
+                        C
+                    </div>
+</div>
+<!-- Treemap Thumbnail Placeholder -->
+<div class="w-full h-32 rounded bg-surface-container flex overflow-hidden border border-outline-variant opacity-80 group-hover:opacity-100 transition-opacity">
+<div class="w-1/3 h-full bg-treemap-high border-r border-outline-variant"></div>
+<div class="w-2/3 h-full flex flex-col">
+<div class="h-[80%] w-full bg-treemap-mid border-b border-outline-variant flex">
+<div class="w-1/2 h-full border-r border-outline-variant"></div>
+<div class="w-1/2 h-full"></div>
+</div>
+<div class="h-[20%] w-full bg-treemap-low"></div>
+</div>
+</div>
+</a>
+<!-- Card 4: Stockerau -->
+<a class="group block bg-surface rounded-lg border border-outline-variant p-gutter hover:bg-surface-subtle transition-colors relative overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04)]" href="#">
+<div class="flex justify-between items-start mb-base">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">Stockerau</h2>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-xs flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="group">group</span>
+                            Pop: 16.916
+                        </div>
+</div>
+<div class="bg-grade-b text-on-primary font-headline-md text-body-md w-lg h-lg rounded flex items-center justify-center shadow-sm">
+                        B
+                    </div>
+</div>
+<!-- Treemap Thumbnail Placeholder -->
+<div class="w-full h-32 rounded bg-surface-container flex overflow-hidden border border-outline-variant opacity-80 group-hover:opacity-100 transition-opacity">
+<div class="w-[45%] h-full bg-treemap-high border-r border-outline-variant"></div>
+<div class="w-[55%] h-full flex flex-col">
+<div class="h-[40%] w-full bg-treemap-mid border-b border-outline-variant"></div>
+<div class="h-[60%] w-full bg-treemap-low"></div>
+</div>
+</div>
+</a>
+</div>
+</main>
+<!-- Footer -->
+<footer class="mt-auto border-t border-outline-variant dark:border-outline bg-surface-subtle dark:bg-surface-dim transition-all duration-200">
+<div class="w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-center gap-base max-w-container-max mx-auto">
+<div class="font-body-sm text-body-sm text-secondary dark:text-secondary-fixed">
+                Datenquelle: offenerhaushalt.at, KDZ. Lizenziert unter CC-BY 3.0.
+            </div>
+<div class="flex gap-lg">
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors" href="#">Datenschutz</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors" href="#">Impressum</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors" href="#">Kontakt</a>
+</div>
+</div>
+</footer>
+</body></html>
