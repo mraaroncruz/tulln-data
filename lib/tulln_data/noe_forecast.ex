@@ -9,6 +9,10 @@ defmodule TullnData.NoeForecast do
 
   @base_url "https://www.noe.gv.at/wasserstand"
 
+  # See note in TullnData.Pegelonline — same Austrian-gov TLS chain hits
+  # OTP's strict key-usage check.
+  @req_opts [connect_options: [transport_opts: [verify: :verify_none]]]
+
   @station_numbers %{
     kienstock: "207357",
     korneuburg: "207241"
@@ -44,7 +48,7 @@ defmodule TullnData.NoeForecast do
   defp fetch_forecast(station_number, parameter) do
     url = "#{@base_url}/kidata/stationdata/#{station_number}_#{parameter}_48Stunden.csv"
 
-    case Req.get(url, decode_body: false) do
+    case Req.get(url, [decode_body: false] ++ @req_opts) do
       {:ok, %{status: 200, body: body}} when is_binary(body) ->
         parse_csv(body)
 

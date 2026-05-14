@@ -10,6 +10,12 @@ defmodule TullnData.Pegelonline do
 
   @base_url "https://www.pegelonline.wsv.de/webservices/rest-api/v2"
 
+  # pegelonline.wsv.de serves a cert OTP rejects under strict CA-bit checking
+  # (`key_usage_mismatch`). Public, read-only API with no credentials in
+  # play — safe to skip peer verification here. Revisit if the upstream
+  # re-issues with the correct key-usage extension.
+  @req_opts [connect_options: [transport_opts: [verify: :verify_none]]]
+
   @stations %{
     kienstock: %{
       shortname: "KIENSTOCK",
@@ -35,7 +41,7 @@ defmodule TullnData.Pegelonline do
     url =
       "#{@base_url}/stations/#{station.shortname}.json?includeTimeseries=true&includeCurrentMeasurement=true"
 
-    case Req.get(url) do
+    case Req.get(url, @req_opts) do
       {:ok, %{status: 200, body: body}} ->
         parse_current(body)
 
@@ -52,7 +58,7 @@ defmodule TullnData.Pegelonline do
     station = @stations[station_key]
     url = "#{@base_url}/stations/#{station.shortname}/W/measurements.json?start=#{duration}"
 
-    case Req.get(url) do
+    case Req.get(url, @req_opts) do
       {:ok, %{status: 200, body: body}} when is_list(body) ->
         {:ok, Enum.map(body, &parse_measurement/1)}
 
@@ -70,7 +76,7 @@ defmodule TullnData.Pegelonline do
     url =
       "#{@base_url}/stations/#{station.shortname}/W.json?includeCharacteristicValues=true"
 
-    case Req.get(url) do
+    case Req.get(url, @req_opts) do
       {:ok, %{status: 200, body: body}} ->
         values =
           body
