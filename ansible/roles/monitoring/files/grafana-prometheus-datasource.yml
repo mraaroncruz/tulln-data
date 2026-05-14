@@ -1,0 +1,14 @@
+# Grafana datasource provisioning. Both Grafana and Prometheus are Kamal
+# accessories on the same docker network, so they reach each other by the
+# kamal-assigned container name.
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://tulln-prometheus:9090
+    isDefault: true
+    editable: true
+    jsonData:
+      timeInterval: 30s

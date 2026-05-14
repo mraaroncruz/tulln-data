@@ -1,0 +1,57 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: '{{ tulln_env }}'
+    project: '{{ project_name }}'
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node exporter for system metrics
+  - job_name: 'node_exporter'
+    static_configs:
+{% if tulln_env == "staging" %}
+      # Single server for staging
+      - targets: ['localhost:9100']
+        labels:
+          server: 'staging-combined'
+{% elif tulln_env == "production" %}
+      # Multiple servers for production
+{% if inventory_hostname in groups['app'] %}
+      - targets: ['localhost:9100']
+        labels:
+          server: 'prod-app'
+{% endif %}
+{% if inventory_hostname in groups['data'] %}
+      - targets: ['{{ hostvars[groups["data"][0]]["private_ip"] }}:9100']
+        labels:
+          server: 'prod-db'
+{% endif %}
+{% endif %}
+
+  # Phoenix application metrics
+  - job_name: 'phoenix'
+    static_configs:
+      - targets: ['localhost:{{ app_port }}']
+        labels:
+          service: 'tulln-app'
+    metrics_path: '/metrics'
+
+  # PostgreSQL exporter (if configured)
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['localhost:9187']
+        labels:
+          service: 'postgresql'
+
+  # Grafana metrics
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['localhost:{{ grafana_port }}']
+        labels:
+          service: 'grafana'
+    metrics_path: '/metrics'

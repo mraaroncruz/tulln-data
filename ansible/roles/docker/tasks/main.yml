@@ -1,0 +1,53 @@
+---
+- name: Install dependencies
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - ca-certificates
+      - lsb-release
+      - curl
+      - git
+      - gnupg
+      - software-properties-common
+
+- name: Add docker key
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+- name: Add docker-ce apt repo
+  shell: 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+
+- name: Run apt update to get docker packages
+  apt: update_cache=yes
+
+- name: Install docker
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+
+- name: Download docker-compose
+  shell: |
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+- name: Change permissions docker-compose
+  shell: |
+    sudo chmod +x /usr/local/bin/docker-compose
+
+- name: Symlink docker-compose
+  shell: |
+    ln -nfs /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+# Allow non-root users to traverse (but not list) /var/lib/docker so that
+# Kamal accessories deployed as the `app` SSH user can mkdir -p paths under
+# it (e.g. for the otel-collector accessory bind-mounting /var/lib/docker/
+# containers). Subdirectory contents stay protected by their own perms.
+- name: Make /var/lib/docker traversable by non-root
+  ansible.builtin.file:
+    path: /var/lib/docker
+    state: directory
+    mode: "0711"

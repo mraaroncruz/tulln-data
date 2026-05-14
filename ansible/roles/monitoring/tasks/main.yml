@@ -1,0 +1,91 @@
+---
+- name: monitoring | Create prometheus config directory
+  ansible.builtin.file:
+    path: /etc/prometheus
+    state: directory
+    owner: 65534
+    group: 65534
+    mode: "0550"
+
+- name: "monitoring | Add prometheus.yml"
+  ansible.builtin.template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
+    owner: 65534
+    group: 65534
+    mode: "0660"
+
+# Bind-mount sources for Kamal accessories. Kamal SSHes as user `app`, which
+# can't create directories under /root, so we put these in /var/lib and
+# pre-create the full path here. With the path already existing, Kamal's
+# `mkdir -p` becomes a no-op success.
+- name: monitoring | Create Kamal prometheus data directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: /var/lib/tulln-prometheus, owner: root, mode: "0755" }
+    - { path: "/var/lib/tulln-prometheus/prometheus-{{ tulln_env }}-data", owner: 65534, mode: "0755" }
+
+- name: monitoring | Create Kamal grafana directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: /var/lib/tulln-grafana, owner: root, mode: "0755" }
+    - { path: "/var/lib/tulln-grafana/grafana-{{ tulln_env }}-data", owner: 472, mode: "0755" }
+    - { path: "/var/lib/tulln-grafana/grafana-{{ tulln_env }}-config", owner: 472, mode: "0755" }
+
+- name: monitoring | Check if grafana.ini exists
+  ansible.builtin.stat:
+    path: "/var/lib/tulln-grafana/grafana-{{ tulln_env }}-config/grafana.ini"
+  register: grafana_ini
+
+- name: monitoring | Seed default grafana.ini from image
+  ansible.builtin.shell: >
+    docker run --rm --entrypoint cat grafana/grafana:latest /etc/grafana/grafana.ini
+    > /var/lib/tulln-grafana/grafana-{{ tulln_env }}-config/grafana.ini
+  when: not grafana_ini.stat.exists
+
+- name: monitoring | Fix grafana.ini ownership
+  ansible.builtin.file:
+    path: "/var/lib/tulln-grafana/grafana-{{ tulln_env }}-config/grafana.ini"
+    owner: 472
+    group: 472
+    mode: "0644"
+  when: not grafana_ini.stat.exists
+
+- name: monitoring | Ensure Grafana provisioning subdirs exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: 472
+    group: 472
+    mode: "0755"
+  loop:
+    - "/var/lib/tulln-grafana/grafana-{{ tulln_env }}-config/provisioning"
+    - "/var/lib/tulln-grafana/grafana-{{ tulln_env }}-config/provisioning/datasources"
+    - "/var/lib/tulln-grafana/grafana-{{ tulln_env }}-config/provisioning/dashboards"
+    - "/var/lib/tulln-grafana/grafana-{{ tulln_env }}-config/provisioning/alerting"
+
+- name: monitoring | Provision Prometheus datasource
+  ansible.builtin.copy:
+    src: grafana-prometheus-datasource.yml
+    dest: "/var/lib/tulln-grafana/grafana-{{ tulln_env }}-config/provisioning/datasources/prometheus.yml"
+    owner: 472
+    group: 472
+    mode: "0644"
+
+- name: monitoring | Provision Grafana alerting rules
+  ansible.builtin.copy:
+    src: grafana-alerting-rules.yaml
+    dest: "/var/lib/tulln-grafana/grafana-{{ tulln_env }}-config/provisioning/alerting/rules.yaml"
+    owner: 472
+    group: 472
+    mode: "0644"

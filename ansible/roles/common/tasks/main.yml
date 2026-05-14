@@ -1,0 +1,53 @@
+---
+- name: Run apt update
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Install apt deps
+  apt:
+    name: curl
+
+- import_tasks: fail2ban.yml
+
+- name: Allow SSH in UFW
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: Allow http in UFW
+  ufw:
+    rule: "allow"
+    port: "{{ item }}"
+    proto: "tcp"
+  with_items:
+    - "80"
+    - "443"
+
+# Block lateral movement on the private subnet by default. Public SSH stays
+# open via the OpenSSH rule above; cross-node services must be allowed
+# explicitly per role (e.g. postgres in the `data` role).
+- name: Remove legacy broad private-network allow rule (if present)
+  ufw:
+    rule: allow
+    from: 10.0.0.0/16
+    delete: yes
+
+- name: Deny inbound from private network by default
+  ufw:
+    rule: deny
+    from: 10.0.0.0/16
+
+- name: Enable UFW
+  ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+
+- name: Ensure user exists
+  user:
+    name: app
+
+- name: Set authorized key taken from file
+  authorized_key:
+    user: app
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"

@@ -1,0 +1,41 @@
+---
+- name: Tulln Data Common Setup
+  hosts: all
+  become: yes
+  gather_facts: yes
+  tags:
+    - common
+  roles:
+    - common
+    - docker
+    - tailscale
+
+- name: Tulln Data Application
+  hosts: app
+  become: yes
+  gather_facts: yes
+  tags:
+    - app
+    - web
+  roles:
+    # - caddy  # Optional: Can enable if using Caddy instead of kamal-proxy
+    - web
+
+- name: Tulln Data Database
+  hosts: data
+  become: yes
+  gather_facts: yes
+  tags:
+    - data
+    - database
+  roles:
+    - data
+
+- name: Tulln Data Monitoring
+  hosts: monitoring
+  become: yes
+  gather_facts: yes
+  tags:
+    - monitoring
+  roles:
+    - monitoring

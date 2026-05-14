@@ -1,0 +1,29 @@
+---
+# Resolve the app host's address: prefer its private IP (multi-node YAML
+# inventory), fall back to the inventory hostname (a bare-IP host in
+# hosts.ini has no private_ip/ansible_host hostvar — the IP *is* the name).
+- name: data | Resolve app host address
+  ansible.builtin.set_fact:
+    app_host_addr: >-
+      {{ hostvars[groups['app'][0]].private_ip
+         | default(hostvars[groups['app'][0]].ansible_host
+                   | default(groups['app'][0])) }}
+
+# Allow PostgreSQL connections from the app host only. This is the only
+# cross-node traffic the data host accepts on the private network —
+# everything else (including SSH from app -> db) is blocked by the
+# default-deny rule in the common role.
+#
+# Skipped in single-node setups (app and data on the same machine): there
+# Postgres runs locally — e.g. a Docker container bound to localhost — and
+# needs no inbound firewall opening at all.
+- name: data | Allow PostgreSQL from app host
+  ufw:
+    rule: allow
+    from: "{{ app_host_addr }}"
+    to: any
+    port: "5432"
+    proto: tcp
+    # Insert above the broad private-net deny set in the common role.
+    insert: "1"
+  when: app_host_addr != inventory_hostname

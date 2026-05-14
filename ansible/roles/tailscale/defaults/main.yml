@@ -1,0 +1,7 @@
+---
+# Tailscale auth key - provide via extra vars, vault, or 1Password
+# Generate at: https://login.tailscale.com/admin/settings/keys
+tailscale_authkey: ""
+
+# Extra args passed to `tailscale up` (e.g. "--advertise-exit-node --ssh")
+tailscale_up_args: "--ssh"

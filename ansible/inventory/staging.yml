@@ -1,0 +1,30 @@
+all:
+  children:
+    staging:
+      hosts:
+        tulln-staging:
+          ansible_host: 1.2.3.4
+          ansible_user: root
+          private_ip: 10.0.2.10
+
+    app:
+      hosts:
+        tulln-staging:
+
+    data:
+      hosts:
+        tulln-staging:
+
+    monitoring:
+      hosts:
+        tulln-staging:
+
+  vars:
+    tulln_env: staging
+    project_name: tulln
+    db_host: localhost
+    db_port: 5432
+    app_port: 4000
+    prometheus_port: 9090
+    grafana_port: 3000
+    monitoring_enabled: true

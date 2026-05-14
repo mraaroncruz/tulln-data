@@ -1,0 +1,8 @@
+# Grafana alerting rules provisioning.
+#
+# Add alert rules under `groups` below. Each rule typically chains a
+# Prometheus query (refId A) -> reduce (B) -> threshold (C), with
+# `condition: C`. See the BillMyCommits ansible repo for a worked example
+# (new-user-signup alert).
+apiVersion: 1
+groups: []
