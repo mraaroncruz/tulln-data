@@ -1,0 +1,59 @@
+<Layouts.app flash={@flash} active_nav={:info}>
+  <div class="max-w-[800px]">
+    <h1 class="text-4xl font-bold tracking-tight text-ot-on-surface mb-2">
+      Über OpenTulln & Methodik
+    </h1>
+    <p class="text-lg text-ot-on-surface-variant">
+      OpenTulln ist ein Open-Data-Projekt mit dem Ziel, kommunale Haushaltsdaten transparent und vergleichbar
+      zu machen. Datenquellen sind die Plattform
+      <a class="text-ot-primary underline" href="https://www.offenerhaushalt.at">
+        offenerhaushalt.at
+      </a>
+      sowie das KDZ – Zentrum für Verwaltungsforschung.
+    </p>
+  </div>
+
+  <section class="mt-10 max-w-[800px]">
+    <h2 class="text-2xl font-semibold mb-4">Glossar der Finanzkennzahlen</h2>
+    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div
+        :for={key <- [:oesq, :efq, :vd, :sdq, :iq]}
+        class="bg-white rounded-lg border border-ot-outline p-4"
+      >
+        <dt class="font-semibold text-ot-on-surface">
+          {Phoenix.Naming.humanize(key)}
+        </dt>
+        <dd class="text-sm text-ot-on-surface-variant mt-1">
+          {TullnData.Budgets.Quicktest.tooltip(key)}
+        </dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="mt-10 max-w-[800px]">
+    <h2 class="text-2xl font-semibold mb-4">Datenquellen & KDZ-Quicktest</h2>
+    <p class="text-ot-on-surface-variant">
+      Die Haushaltsdaten stammen von der Plattform offenerhaushalt.at und werden im VRV97-Format
+      (2001-2019) sowie VRV2015-Format (ab 2020) bereitgestellt. Der KDZ-Quicktest ist ein etablierter
+      Standard zur Beurteilung der finanziellen Gesundheit österreichischer Gemeinden und besteht aus
+      fünf Kennzahlen, jeweils benotet von A (sehr gut) bis E (sehr schlecht).
+    </p>
+  </section>
+
+  <section class="mt-10 max-w-[800px]">
+    <h2 class="text-2xl font-semibold mb-4">Roadmap: Zukünftige Themen</h2>
+    <p class="text-ot-on-surface-variant">
+      OpenTulln wird schrittweise um weitere Themenbereiche erweitert: Hochwasser- und Pegelstandsdaten,
+      Solarpotential, Heißlufttage, Pendlerströme, Landwirtschaft und Radverkehr.
+    </p>
+  </section>
+
+  <section class="mt-10 max-w-[800px]">
+    <h2 class="text-2xl font-semibold mb-4">Lizenz & Rechtliches</h2>
+    <p class="text-ot-on-surface-variant">
+      Daten von offenerhaushalt.at und KDZ stehen unter <strong>CC-BY 3.0 AT</strong>. HORA-Hochwasserdaten
+      vom Land Niederösterreich sowie Pegeldaten von wsv.de unterliegen ihren jeweiligen
+      Veröffentlichungsbedingungen.
+    </p>
+  </section>
+</Layouts.app>

@@ -18,6 +18,8 @@ defmodule TullnDataWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/info", PageController, :info
+    live "/haushalt/:slug", HaushaltLive
     live "/map", MapDemoLive
     live "/hochwasser/test", HochwasserTestLive
   end

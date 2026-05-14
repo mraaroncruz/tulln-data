@@ -82,4 +82,71 @@ defmodule TullnData.Budgets do
       end)
     end)
   end
+
+  @doc """
+  Aggregates a Gemeinde's EHH (Ergebnishaushalt) line items for a given year by
+  top-level Ansatz group (the first digit of `ansatz_code` — Austria's
+  standardized 0–9 functional bereiche). Returns a list of
+  `%{code, name, amount}` ordered by amount desc.
+
+  If no EHH data exists for that (slug, year), returns an empty list.
+  """
+  def top_level_ansatz_breakdown(slug, year) when is_binary(slug) and is_integer(year) do
+    case get_municipality_by_slug(slug) do
+      nil ->
+        []
+
+      m ->
+        from(li in LineItem,
+          join: fy in FiscalYear,
+          on: fy.id == li.fiscal_year_id,
+          where:
+            fy.municipality_id == ^m.id and fy.year == ^year and
+              fy.budget_component == :ehh and not is_nil(li.ansatz_code),
+          group_by: fragment("LEFT(?, 1)", li.ansatz_code),
+          select: %{
+            code: fragment("LEFT(?, 1)", li.ansatz_code),
+            amount: sum(li.amount)
+          },
+          order_by: [desc: sum(li.amount)]
+        )
+        |> Repo.all()
+        |> Enum.map(fn row ->
+          Map.put(row, :name, ansatz_group_name(row.code))
+        end)
+    end
+  end
+
+  @doc """
+  Returns the list of years for which we have EHH data for a Gemeinde,
+  newest first.
+  """
+  def available_years(slug) when is_binary(slug) do
+    case get_municipality_by_slug(slug) do
+      nil ->
+        []
+
+      m ->
+        from(fy in FiscalYear,
+          where: fy.municipality_id == ^m.id and fy.budget_component == :ehh,
+          select: fy.year,
+          distinct: true,
+          order_by: [desc: fy.year]
+        )
+        |> Repo.all()
+    end
+  end
+
+  # German labels for the canonical Austrian Ansatz functional groups (Gruppen).
+  defp ansatz_group_name("0"), do: "Vertretung & Verwaltung"
+  defp ansatz_group_name("1"), do: "Öffentliche Ordnung"
+  defp ansatz_group_name("2"), do: "Bildung"
+  defp ansatz_group_name("3"), do: "Kunst & Kultur"
+  defp ansatz_group_name("4"), do: "Soziale Wohlfahrt"
+  defp ansatz_group_name("5"), do: "Gesundheit"
+  defp ansatz_group_name("6"), do: "Bau & Verkehr"
+  defp ansatz_group_name("7"), do: "Wirtschaftsförderung"
+  defp ansatz_group_name("8"), do: "Dienstleistungen"
+  defp ansatz_group_name("9"), do: "Finanzwirtschaft"
+  defp ansatz_group_name(other), do: "Gruppe #{other}"
 end
