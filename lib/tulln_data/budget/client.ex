@@ -15,18 +15,27 @@ defmodule TullnData.Budget.Client do
 
   @vrv97_types ~w(finanzdaten voranschlag rechnungsabschluss schulden haftungen)
   @vrv2015_haushalte ~w(fhh ehh vhh)
-  @download_referer "#{@vrv2015_base}/gemeinde/#{@tulln_slug}/download"
 
   @doc """
-  Downloads a VRV97 CSV for Tulln. Returns `{:ok, binary}` with ISO-8859-1 encoded CSV.
+  Downloads a VRV97 CSV for Tulln. Tulln-specific convenience wrapper around
+  `download_vrv97_for/3`.
+  """
+  def download_vrv97(year, type \\ "finanzdaten"),
+    do: download_vrv97_for(@tulln_slug, year, type)
+
+  @doc """
+  Downloads a VRV97 CSV for the given municipality slug.
+
+  Returns `{:ok, binary}` with ISO-8859-1 encoded CSV.
 
   ## Parameters
+    - `slug`: offenerhaushalt.at municipality slug (e.g. `"tulln-der-donau"`)
     - `year`: 2001-2019
     - `type`: one of #{inspect(@vrv97_types)}
   """
-  def download_vrv97(year, type \\ "finanzdaten")
-      when type in @vrv97_types and year in 2001..2019 do
-    url = "#{@vrv97_base}/download/#{type}/top/#{@tulln_slug}/#{year}"
+  def download_vrv97_for(slug, year, type \\ "finanzdaten")
+      when is_binary(slug) and type in @vrv97_types and year in 2001..2019 do
+    url = "#{@vrv97_base}/download/#{type}/top/#{slug}/#{year}"
 
     with_telemetry(:vrv97, type, year, fn ->
       case Req.get(url, decode_body: false, redirect: true) do
@@ -46,20 +55,35 @@ defmodule TullnData.Budget.Client do
   end
 
   @doc """
-  Downloads a VRV2015 CSV for Tulln. Returns `{:ok, binary}` with UTF-8 encoded CSV.
+  Downloads a VRV2015 CSV for Tulln. Tulln-specific convenience wrapper around
+  `download_vrv2015_for/6`.
+  """
+  def download_vrv2015(year, haushalt, ra_va \\ "ra", origin \\ "gemeinde"),
+    do: download_vrv2015_for(@tulln_slug, @tulln_gkz, year, haushalt, ra_va, origin)
+
+  @doc """
+  Downloads a VRV2015 CSV for the given municipality slug + GKZ.
+
+  Returns `{:ok, binary}` with UTF-8 encoded CSV.
 
   ## Parameters
+    - `slug`: offenerhaushalt.at municipality slug (e.g. `"klosterneuburg"`)
+    - `gkz`: Gemeindekennzahl (e.g. `"32125"`)
     - `year`: 2020+
     - `haushalt`: one of #{inspect(@vrv2015_haushalte)}
     - `ra_va`: `"ra"` (Rechnungsabschluss/actuals) or `"va"` (Voranschlag/budget)
     - `origin`: `"gemeinde"` or `"statistik_at"`
   """
-  def download_vrv2015(year, haushalt, ra_va \\ "ra", origin \\ "gemeinde")
-      when haushalt in @vrv2015_haushalte and ra_va in ["ra", "va"] and year >= 2020 do
+  def download_vrv2015_for(slug, gkz, year, haushalt, ra_va \\ "ra", origin \\ "gemeinde")
+      when is_binary(slug) and is_binary(gkz) and haushalt in @vrv2015_haushalte and
+             ra_va in ["ra", "va"] and year >= 2020 do
+    referer = "#{@vrv2015_base}/gemeinde/#{slug}/download"
+
     with_telemetry(:vrv2015, haushalt, year, fn ->
-      with {:ok, cookies, csrf_token} <- fetch_session_and_token(),
-           {:ok, cookies} <- fetch_download_token(cookies, csrf_token),
-           {:ok, body} <- fetch_csv(cookies, csrf_token, year, haushalt, ra_va, origin) do
+      with {:ok, cookies, csrf_token} <- fetch_session_and_token(slug),
+           {:ok, cookies} <- fetch_download_token(cookies, csrf_token, referer),
+           {:ok, body} <-
+             fetch_csv(cookies, csrf_token, gkz, year, haushalt, ra_va, origin, referer) do
         {:ok, body}
       end
     end)
@@ -116,8 +140,8 @@ defmodule TullnData.Budget.Client do
     result
   end
 
-  defp fetch_session_and_token do
-    url = "#{@vrv2015_base}/gemeinde/#{@tulln_slug}/download"
+  defp fetch_session_and_token(slug) do
+    url = "#{@vrv2015_base}/gemeinde/#{slug}/download"
 
     case Req.get(url, decode_body: false, redirect: true, max_redirects: 5) do
       {:ok, %{status: 200, body: body, headers: headers}} ->
@@ -138,14 +162,14 @@ defmodule TullnData.Budget.Client do
     end
   end
 
-  defp fetch_download_token(cookies, csrf_token) do
+  defp fetch_download_token(cookies, csrf_token, referer) do
     url = "#{@vrv2015_base}/downloads/get-token"
 
     body = URI.encode_query(%{"foo" => "bar", "_token" => csrf_token})
 
     case Req.post(url,
            body: body,
-           headers: post_headers(cookies),
+           headers: post_headers(cookies, referer),
            decode_body: false,
            redirect: false
          ) do
@@ -161,7 +185,7 @@ defmodule TullnData.Budget.Client do
     end
   end
 
-  defp fetch_csv(cookies, csrf_token, year, haushalt, ra_va, origin) do
+  defp fetch_csv(cookies, csrf_token, gkz, year, haushalt, ra_va, origin, referer) do
     url = "#{@vrv2015_base}/downloads/ghdByParams"
 
     body =
@@ -170,13 +194,13 @@ defmodule TullnData.Budget.Client do
         "rechnungsabschluss" => ra_va,
         "year" => to_string(year),
         "origin" => origin,
-        "gkz" => @tulln_gkz,
+        "gkz" => gkz,
         "_token" => csrf_token
       })
 
     case Req.post(url,
            body: body,
-           headers: post_headers(cookies),
+           headers: post_headers(cookies, referer),
            decode_body: false,
            redirect: false
          ) do
@@ -194,11 +218,11 @@ defmodule TullnData.Budget.Client do
     end
   end
 
-  defp post_headers(cookies) do
+  defp post_headers(cookies, referer) do
     [
       {"content-type", "application/x-www-form-urlencoded"},
       {"cookie", cookies},
-      {"referer", @download_referer},
+      {"referer", referer},
       {"x-requested-with", "XMLHttpRequest"}
     ]
   end
