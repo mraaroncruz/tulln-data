@@ -28,19 +28,21 @@ defmodule TullnData.Budget.Client do
       when type in @vrv97_types and year in 2001..2019 do
     url = "#{@vrv97_base}/download/#{type}/top/#{@tulln_slug}/#{year}"
 
-    case Req.get(url, decode_body: false, redirect: true) do
-      {:ok, %{status: 200, body: body}} when byte_size(body) > 0 ->
-        {:ok, body}
+    with_telemetry(:vrv97, type, year, fn ->
+      case Req.get(url, decode_body: false, redirect: true) do
+        {:ok, %{status: 200, body: body}} when byte_size(body) > 0 ->
+          {:ok, body}
 
-      {:ok, %{status: 200, body: ""}} ->
-        {:error, :no_data}
+        {:ok, %{status: 200, body: ""}} ->
+          {:error, :no_data}
 
-      {:ok, %{status: status}} ->
-        {:error, {:http_status, status}}
+        {:ok, %{status: status}} ->
+          {:error, {:http_status, status}}
 
-      {:error, reason} ->
-        {:error, reason}
-    end
+        {:error, reason} ->
+          {:error, reason}
+      end
+    end)
   end
 
   @doc """
@@ -54,11 +56,13 @@ defmodule TullnData.Budget.Client do
   """
   def download_vrv2015(year, haushalt, ra_va \\ "ra", origin \\ "gemeinde")
       when haushalt in @vrv2015_haushalte and ra_va in ["ra", "va"] and year >= 2020 do
-    with {:ok, cookies, csrf_token} <- fetch_session_and_token(),
-         {:ok, cookies} <- fetch_download_token(cookies, csrf_token),
-         {:ok, body} <- fetch_csv(cookies, csrf_token, year, haushalt, ra_va, origin) do
-      {:ok, body}
-    end
+    with_telemetry(:vrv2015, haushalt, year, fn ->
+      with {:ok, cookies, csrf_token} <- fetch_session_and_token(),
+           {:ok, cookies} <- fetch_download_token(cookies, csrf_token),
+           {:ok, body} <- fetch_csv(cookies, csrf_token, year, haushalt, ra_va, origin) do
+        {:ok, body}
+      end
+    end)
   end
 
   @doc """
@@ -85,6 +89,31 @@ defmodule TullnData.Budget.Client do
       end
 
     {:ok, vrv97_results ++ vrv2015_results}
+  end
+
+  # Emits a `[:tulln_data, :budget, :download]` telemetry event for every
+  # download attempt. Measurements: `:duration` (native time units) and
+  # `:bytes` (response size, 0 on failure). Metadata: `:source`
+  # (`:vrv97` | `:vrv2015`), `:kind` (CSV type / haushalt), `:year`,
+  # `:result` (`:ok` | `:error`) and `:reason` (error term or `nil`).
+  defp with_telemetry(source, kind, year, fun) do
+    start = System.monotonic_time()
+    result = fun.()
+    duration = System.monotonic_time() - start
+
+    {status, bytes, reason} =
+      case result do
+        {:ok, body} -> {:ok, byte_size(body), nil}
+        {:error, reason} -> {:error, 0, reason}
+      end
+
+    :telemetry.execute(
+      [:tulln_data, :budget, :download],
+      %{duration: duration, bytes: bytes},
+      %{source: source, kind: kind, year: year, result: status, reason: reason}
+    )
+
+    result
   end
 
   defp fetch_session_and_token do
