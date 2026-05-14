@@ -59,7 +59,7 @@ defmodule TullnData.Budget.Vrv2015 do
     }
   end
 
-  # vhh has 19 columns with balance-sheet fields instead of single Wert
+  # vhh (legacy) — 20 columns with balance-sheet fields instead of single Wert
   defp row_to_map([
          jahr,
          bundesland,
@@ -82,6 +82,99 @@ defmodule TullnData.Budget.Vrv2015 do
          aenderung,
          endstand_rj
        ]) do
+    build_vhh_row(
+      jahr,
+      bundesland,
+      va_ra,
+      datenquelle,
+      gkz,
+      gemeindename,
+      ansatz_uab,
+      ansatz_ugl,
+      konto_grp,
+      konto_ugl,
+      vorhabencode,
+      mvag,
+      ansatz_text,
+      konto_text,
+      endstand_vj,
+      zugang,
+      abgang,
+      aenderung,
+      endstand_rj
+    )
+  end
+
+  # vhh (2023+) — 23 columns: adds Id-Vhh, Sektor, Land between Vorhabencode and Mvag
+  defp row_to_map([
+         jahr,
+         bundesland,
+         va_ra,
+         datenquelle,
+         gkz,
+         gemeindename,
+         _haushalt,
+         ansatz_uab,
+         ansatz_ugl,
+         konto_grp,
+         konto_ugl,
+         vorhabencode,
+         _id_vhh,
+         _sektor,
+         _land,
+         mvag,
+         ansatz_text,
+         konto_text,
+         endstand_vj,
+         zugang,
+         abgang,
+         aenderung,
+         endstand_rj
+       ]) do
+    build_vhh_row(
+      jahr,
+      bundesland,
+      va_ra,
+      datenquelle,
+      gkz,
+      gemeindename,
+      ansatz_uab,
+      ansatz_ugl,
+      konto_grp,
+      konto_ugl,
+      vorhabencode,
+      mvag,
+      ansatz_text,
+      konto_text,
+      endstand_vj,
+      zugang,
+      abgang,
+      aenderung,
+      endstand_rj
+    )
+  end
+
+  defp build_vhh_row(
+         jahr,
+         bundesland,
+         va_ra,
+         datenquelle,
+         gkz,
+         gemeindename,
+         ansatz_uab,
+         ansatz_ugl,
+         konto_grp,
+         konto_ugl,
+         vorhabencode,
+         mvag,
+         ansatz_text,
+         konto_text,
+         endstand_vj,
+         zugang,
+         abgang,
+         aenderung,
+         endstand_rj
+       ) do
     %{
       year: String.to_integer(jahr),
       state: bundesland,
