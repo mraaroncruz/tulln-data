@@ -45,27 +45,34 @@ defmodule Mix.Tasks.Tulln.Ingest.Budget do
 
   defp ingest_vrv97(slug, year) do
     Mix.shell().info("Ingesting #{slug} vrv97 #{year}…")
-
-    case TullnData.Budgets.Ingest.vrv97(slug, year) do
-      {:ok, %{line_items: count}} ->
-        Mix.shell().info("  #{slug} vrv97 #{year}: #{count} line items")
-
-      {:error, reason} ->
-        Mix.shell().error("  #{slug} vrv97 #{year} failed: #{inspect(reason)}")
-    end
+    report_result(slug, "vrv97 #{year}", TullnData.Budgets.Ingest.vrv97(slug, year))
   end
 
   defp ingest_vrv2015(slug, year) do
     for haushalt <- ~w(fhh ehh vhh) do
       Mix.shell().info("Ingesting #{slug} vrv2015 #{year} #{haushalt}…")
 
-      case TullnData.Budgets.Ingest.vrv2015(slug, year, haushalt) do
-        {:ok, %{line_items: count}} ->
-          Mix.shell().info("  #{slug} vrv2015 #{year} #{haushalt}: #{count} line items")
+      report_result(
+        slug,
+        "vrv2015 #{year} #{haushalt}",
+        TullnData.Budgets.Ingest.vrv2015(slug, year, haushalt)
+      )
+    end
+  end
 
-        {:error, reason} ->
-          Mix.shell().error("  #{slug} vrv2015 #{year} #{haushalt} failed: #{inspect(reason)}")
-      end
+  defp report_result(slug, label, result) do
+    case result do
+      {:ok, %{line_items: count}} ->
+        Mix.shell().info("  #{slug} #{label}: #{count} line items")
+
+      # Expected when offenerhaushalt.at simply has nothing for this
+      # (Gemeinde, year, haushalt) tuple — usually the current fiscal year
+      # before its Rechnungsabschluss is published.
+      {:error, :not_published} ->
+        Mix.shell().info("  #{slug} #{label}: [skip] not published upstream")
+
+      {:error, reason} ->
+        Mix.shell().error("  #{slug} #{label} failed: #{inspect(reason)}")
     end
   end
 end

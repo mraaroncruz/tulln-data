@@ -43,7 +43,10 @@ defmodule TullnData.Budget.Client do
           {:ok, body}
 
         {:ok, %{status: 200, body: ""}} ->
-          {:error, :no_data}
+          {:error, :not_published}
+
+        {:ok, %{status: 404}} ->
+          {:error, :not_published}
 
         {:ok, %{status: status}} ->
           {:error, {:http_status, status}}
@@ -208,7 +211,10 @@ defmodule TullnData.Budget.Client do
         {:ok, csv_body}
 
       {:ok, %{status: 200, body: ""}} ->
-        {:error, :no_data}
+        {:error, :not_published}
+
+      {:ok, %{status: 404}} ->
+        {:error, :not_published}
 
       {:ok, %{status: status}} ->
         {:error, {:download_csv, status}}
