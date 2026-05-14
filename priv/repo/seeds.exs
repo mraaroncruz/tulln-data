@@ -46,7 +46,7 @@ municipalities = [
   %{
     slug: "klosterneuburg",
     name: "Klosterneuburg",
-    gkz: "32125",
+    gkz: "32144",
     population: 27_542,
     bezirk: "Klosterneuburg (Statutarstadt)",
     bundesland: "Niederösterreich"
