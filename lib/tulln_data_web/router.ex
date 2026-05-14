@@ -19,6 +19,7 @@ defmodule TullnDataWeb.Router do
 
     get "/", PageController, :home
     live "/map", MapDemoLive
+    live "/hochwasser/test", HochwasserTestLive
   end
 
   scope "/wms", TullnDataWeb do
